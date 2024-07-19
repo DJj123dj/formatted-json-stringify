@@ -1,0 +1,37 @@
+{
+    "name": "formatted-json-stringify",
+    "author": "DJj123dj",
+    "version": "1.0.0",
+    "description": "An advanced customisable version of the javascript JSON.stringify() function.",
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "directories": {
+        "test": "test"
+    },
+    "scripts": {
+        "build": "node ./tools/cleanup.js && tsc -p ./tsconfig.json",
+        "test": "node ./test/example.js",
+        "test2": "node ./test/example2.js"
+    },
+    "keywords": [
+        "json",
+        "stringify",
+        "parse",
+        "advanced",
+        "config",
+        "database",
+        "format",
+        "formatted",
+        "json-formatter",
+        "formatter",
+        "dashboard",
+        "auto-config",
+        "auto-updater",
+        "json-auto-fill"
+    ],
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/DJj123dj/formatted-json-stringify.git"
+    }
+}

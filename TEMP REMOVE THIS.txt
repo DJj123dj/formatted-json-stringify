@@ -1,0 +1,41 @@
+[
+    {
+        "key":"sample-key-1",
+        "value":"hello world!"
+    },
+    {
+        "key":"sample-key-2",
+        "value":"hello mars!"
+    },
+    {
+        "key":"sample-key-3",
+        "value":"hello venus!"
+    },
+    {
+        "key":"sample-key-4",
+        "value":"hello sun!"
+    }
+]
+
+
+[
+    {"key":"sample-key-1","value":"hello world!"},
+    {"key":"sample-key-2","value":"hello mars!"},
+    {"key":"sample-key-3","value":"hello venus!"},
+    {"key":"sample-key-4","value":"hello sun!"}
+]
+
+
+
+{
+    "property1":"this is the first property",
+    "property2":"this is the second property",
+    "property3":123,
+    
+    "subObject":{
+        "sub_property_1":true,
+        "sub_property_2":false,
+        
+        "sub_array":["abcd","efg","hijk","lmnop","qrst","uvw","xyz","and thats the alphabet!"]
+    }
+}
