@@ -87,6 +87,7 @@ While using Formatted Json Stringify you have access to the following classes:
 |`ArrayFormatter`        |`array`                                |Format an `array` and customise how the values are formatted. **This supports 1 formatter for all children!**!                           |
 |`TextFormatter`         |`/`                                    |Add an empty row or note between properties in an `object`!                                                                              |
 |`ObjectSwitchFormatter` |`object`                               |Use this utility class to switch `ObjectFormatter`'s based on a `key` and `value` match in the object.                                   |
+|`DefaultFormatter`      |`any`                                  |Format any variable you don't know the contents of! This formatter uses `JSON.stringify()` under the hood!                               |
 
 > There are more classes available, but these are only for advanced usage!
 
@@ -186,7 +187,61 @@ const formatter = new fjs.ArrayFormatter(null,true,
 ]
 ```
 
-## 🩷 Sponsors
+### #3 Using The Default Formatter
+> There will be some cases where you don't know the value/contents of a variable.
+> This isn't that helpful when you need to know the entire structure of the JSON.
+>
+> Luckly there is a solution: Using the `DefaultFormatter`! It's just a wrapper around the default `JSON.stringify()`!
+
+```js
+const input = {
+    property1:"this is the first property",
+    property2:"this is the second property",
+    property3:123,
+    subObject:{
+        sub_property_1:true,
+        sub_property_2:false,
+        sub_array:["abcd","efg","hijk","lmnop","qrst","uvw","xyz","and thats the alphabet!"]
+    }
+}
+
+const formatter = new fjs.ObjectFormatter(null,true,[
+    new fjs.PropertyFormatter("property1"),
+    new fjs.PropertyFormatter("property2"),
+    new fjs.PropertyFormatter("property3"),
+    new fjs.TextFormatter(),
+    
+    //we don't know the contents of this object
+    //but we still want to render it multiline/inline
+    new fjs.DefaultFormatter("subObject",true)
+```
+**Expected Output:**
+> You will automatically see that not only the object got rendered `multiline`, but the entire part including the array got rendered `multiline`!
+
+```json
+{
+    "property1":"this is the first property",
+    "property2":"this is the second property",
+    "property3":123,
+    
+    "subObject":{
+        "sub_property_1": true,
+        "sub_property_2": false,
+        "sub_array": [
+            "abcd",
+            "efg",
+            "hijk",
+            "lmnop",
+            "qrst",
+            "uvw",
+            "xyz",
+            "and thats the alphabet!"
+        ]
+    }
+}
+```
+
+## ❤️ Sponsors
 We don't have any sponsors yet! Would you like to do it?
 
 ## 🛠️ Contributors

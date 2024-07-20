@@ -38,6 +38,31 @@ export namespace custom {
     }
 }
 
+/**## DefaultFormatter `class`
+ * You can use this formatter when you don't know the contents of the variable!
+ * 
+ * It just uses the default `JSON.stringify` under the hood!
+ */
+export class DefaultFormatter extends custom.BaseFormatter {
+    /**When enabled, objects & arrays will be rendered multiline instead of inline! */
+    multiline: boolean
+    /**The space or indentation for this object/array. 4 spaces by default. */
+    space: string 
+
+    constructor(name:string|null, multiline:boolean, space?:string){
+        super(name)
+        this.multiline = multiline
+        this.space = space ?? "    "
+    }
+
+    stringify(data:custom.ValidJsonType){
+        if (typeof data == "undefined") throw new Error(`FJS.PropertyFormatter: Property '${this.name}' is 'undefined' which is not allowed in JSON files!`)
+        const key = this.showKey ? `"${this.name}":` : ""
+        const value = JSON.stringify(data,null,(this.multiline ? this.space : undefined))
+        return key+value
+    }
+}
+
 /**## PropertyFormatter `class`
  * The formatter responsible for formatting `boolean`, `string`, `number` & `null` variables!
  */
