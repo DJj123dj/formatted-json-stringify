@@ -4,10 +4,10 @@
    <img src="https://apis.dj-dj.be/cdn/formatted-json-stringify/logo.png" alt="Formatted Json Stringify" width="600px">
 </picture>
 
-[![discord](https://img.shields.io/badge/discord-join%20our%20server-5865F2.svg?style=flat-square&logo=discord)](https://discord.com/invite/26vT9wt3n3)  [![version](https://img.shields.io/badge/version-1.0.0-brightgreen.svg?style=flat-square)](https://github.com/DJj123dj/formatted-json-stringify/releases/tag/v1.0.0)  [![license](https://img.shields.io/badge/license-MIT-important.svg?style=flat-square)](https://github.com/DJj123dj/formatted-json-stringify/blob/main/LICENSE) [![stars](https://img.shields.io/github/stars/DJj123dj/formatted-json-stringify?color=yellow&label=stars&logo=github&style=flat-square)](https://www.github.com/DJj123dj/formatted-json-stringify)
+[![discord](https://img.shields.io/badge/discord-join%20our%20server-5865F2.svg?style=flat-square&logo=discord)](https://discord.com/invite/26vT9wt3n3)  [![version](https://img.shields.io/badge/version-1.0.1-brightgreen.svg?style=flat-square)](https://github.com/DJj123dj/formatted-json-stringify/releases/tag/v1.0.1)  [![license](https://img.shields.io/badge/license-MIT-important.svg?style=flat-square)](https://github.com/DJj123dj/formatted-json-stringify/blob/main/LICENSE) [![stars](https://img.shields.io/github/stars/DJj123dj/formatted-json-stringify?color=yellow&label=stars&logo=github&style=flat-square)](https://www.github.com/DJj123dj/formatted-json-stringify)
 
 ### Formatted Json Stringify
-Formatted Json Stringify is a small [npm package](https://www.npmjs.com/package/formatted-json-stringify) which allows you use an advanced & customisable version of the `JSON.stringify()`! If you're having trouble setting the bot up, feel free to join our support server and we will help you further! 
+Formatted Json Stringify is a small [npm package](https://www.npmjs.com/package/formatted-json-stringify) which allows you use an advanced & customisable version of the `JSON.stringify()`! If you're having trouble configuring the library, feel free to join our support server and we will help you further! 
 
 ### [Install it using npm!](https://www.npmjs.com/package/formatted-json-stringify)
 ```
@@ -77,8 +77,8 @@ fs.writeFileSync("./test/output.json",formatter.stringify(sample))
 You're also able to change if an array/object is rendered `inline` or `multiline`. For small arrays & objects, it's recommended to use the `inline` variant!
 
 
-### Classes
-While using Formatted Json Stringify you have access to the following classes:
+## 📦 Classes
+When using Formatted Json Stringify you have access to the following classes.
 
 |Class                   |Variable Type                          |Functionality                                                                                                                            |
 |------------------------|---------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
@@ -89,12 +89,23 @@ While using Formatted Json Stringify you have access to the following classes:
 |`ObjectSwitchFormatter` |`object`                               |Use this utility class to switch `ObjectFormatter`'s based on a `key` and `value` match in the object.                                   |
 |`DefaultFormatter`      |`any`                                  |Format any variable you don't know the contents of! This formatter uses `JSON.stringify()` under the hood!                               |
 
-> There are more classes available, but these are only for advanced usage!
+> There is also the `BaseFormatter` for when you want to create your own formatter (by extending)!
+
+### Configurable Options
+Here, you can find a list of settings found on most formatters and what they will do.
+|Option       |Availability                         |Type                 |Functionality                                                                                                         |
+|-------------|-------------------------------------|---------------------|----------------------------------------------------------------------------------------------------------------------|
+|`name`       |All Formatters                       |`string\|null`       |When not `null`, it renders the property name or key. [Click here for an example!](#example-2-name-vs-without-name)   |
+|`multiline`  |`ObjectFormatter` & `ArrayFormatter` |`boolean`            |When `true`, it renders the object or array `multiline`. [Click here for an example!](#example-1-multiline-vs-inline) |
+|`space`      |`ObjectFormatter` & `ArrayFormatter` |`string\|undefined`  |Used as indentation when `multiline` is enabled. 4 spaces by default.                                                 |
+|`text`       |`TextFormatter`                      |`string\|undefined`  |When used, insert custom text on this row. Can be used for comments. When not defined, it will just be an empty row.  |
+|`children`   |`ObjectFormatter`                    |`BaseFormatter[]`    |A list of formatters which will define how all children/properties of the object are formatted.                       |
+|`property`   |`ArrayFormatter`                     |`BaseFormatter`      |The formatter used to format the properties/values of this array.                                                     |
+|`formatters` |`ObjectSwitchFormatter`              |`ObjectSwitchData[]` |A list of `ObjectFormatter`'s to choose from, depending on a key-value match.                                         |
 
 ## 📸 Example Usage
-### #1 Multiline VS Inline:
+### Example 1: Multiline VS Inline
 > Here, we will compare a `multiline` format vs an `inline` format. It's recommended to use the `multiline` format for large `objects` and `arrays`!
-
 
 <table>
 <tr>
@@ -141,7 +152,43 @@ While using Formatted Json Stringify you have access to the following classes:
 </tr>
 </table>
 
-### #2 Using Object Switch For Databases:
+### Example 2: Name VS Without Name
+> Here, we will compare what will happen when you set the `name` property to `null` or a `string`!
+
+<table>
+<tr>
+<td>Name</td>
+<td>Without Name</td>
+</tr>
+<tr>
+<td>
+
+```json
+"thisIsTheName":{
+    "property1":1,
+    "property2":2,
+    "property3":3
+}
+```
+
+</td>
+<td>
+
+```json
+{
+    "property1":1,
+    "property2":2,
+    "property3":3
+}
+```
+
+</td>
+</tr>
+</table>
+
+The only place where you should disable the `name` is in the **first formatter** or in **array properties**!
+
+### Example 3: Using Object Switch For Databases
 > We're creating a database with 1 simple type and 1 complex type.
 > The complex type is formatted `multiline` while the simple type is formatted `inline`!
 ```js
@@ -187,7 +234,7 @@ const formatter = new fjs.ArrayFormatter(null,true,
 ]
 ```
 
-### #3 Using The Default Formatter
+### Example 4: Using The Default Formatter
 > There will be some cases where you don't know the value/contents of a variable.
 > This isn't that helpful when you need to know the entire structure of the JSON.
 >
@@ -265,7 +312,7 @@ Please help us grow by giving a star! It would help us a lot!
 </a>
 
 ## 📎 Links
-current version: _v1.0.0_
+current version: _v1.0.1_
 </br>changelog: [click here](https://www.github.com/DJj123dj/discord-alt-detector/releases)
 </br>support: [click here](https://discord.dj-dj.be/)
 

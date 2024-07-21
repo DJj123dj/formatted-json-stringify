@@ -1,7 +1,7 @@
 {
     "name": "formatted-json-stringify",
     "author": "DJj123dj",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "An advanced & customisable version of the javascript JSON.stringify() function.",
     "main": "dist/index.js",
     "module": "dist/index.js",
