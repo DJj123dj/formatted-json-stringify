@@ -4,7 +4,7 @@
    <img src="https://apis.dj-dj.be/cdn/formatted-json-stringify/logo.png" alt="Formatted Json Stringify" width="600px">
 </picture>
 
-[![discord](https://img.shields.io/badge/discord-join%20our%20server-5865F2.svg?style=flat-square&logo=discord)](https://discord.com/invite/26vT9wt3n3)  [![version](https://img.shields.io/badge/version-1.0.1-brightgreen.svg?style=flat-square)](https://github.com/DJj123dj/formatted-json-stringify/releases/tag/v1.0.1)  [![license](https://img.shields.io/badge/license-MIT-important.svg?style=flat-square)](https://github.com/DJj123dj/formatted-json-stringify/blob/main/LICENSE) [![stars](https://img.shields.io/github/stars/DJj123dj/formatted-json-stringify?color=yellow&label=stars&logo=github&style=flat-square)](https://www.github.com/DJj123dj/formatted-json-stringify)
+[![discord](https://img.shields.io/badge/discord-join%20our%20server-5865F2.svg?style=flat-square&logo=discord)](https://discord.com/invite/26vT9wt3n3)  [![version](https://img.shields.io/badge/version-1.1.0-brightgreen.svg?style=flat-square)](https://github.com/DJj123dj/formatted-json-stringify/releases/tag/v1.1.0)  [![license](https://img.shields.io/badge/license-MIT-important.svg?style=flat-square)](https://github.com/DJj123dj/formatted-json-stringify/blob/main/LICENSE) [![stars](https://img.shields.io/github/stars/DJj123dj/formatted-json-stringify?color=yellow&label=stars&logo=github&style=flat-square)](https://www.github.com/DJj123dj/formatted-json-stringify)
 
 ### Formatted Json Stringify
 Formatted Json Stringify is a small [npm package](https://www.npmjs.com/package/formatted-json-stringify) which allows you use an advanced & customisable version of the `JSON.stringify()`! If you're having trouble configuring the library, feel free to join our support server and we will help you further! 
@@ -93,15 +93,16 @@ When using Formatted Json Stringify you have access to the following classes.
 
 ### Configurable Options
 Here, you can find a list of settings found on most formatters and what they will do.
-|Option       |Availability                         |Type                 |Functionality                                                                                                         |
-|-------------|-------------------------------------|---------------------|----------------------------------------------------------------------------------------------------------------------|
-|`name`       |All Formatters                       |`string\|null`       |When not `null`, it renders the property name or key. [Click here for an example!](#example-2-name-vs-without-name)   |
-|`multiline`  |`ObjectFormatter` & `ArrayFormatter` |`boolean`            |When `true`, it renders the object or array `multiline`. [Click here for an example!](#example-1-multiline-vs-inline) |
-|`space`      |`ObjectFormatter` & `ArrayFormatter` |`string\|undefined`  |Used as indentation when `multiline` is enabled. 4 spaces by default.                                                 |
-|`text`       |`TextFormatter`                      |`string\|undefined`  |When used, insert custom text on this row. Can be used for comments. When not defined, it will just be an empty row.  |
-|`children`   |`ObjectFormatter`                    |`BaseFormatter[]`    |A list of formatters which will define how all children/properties of the object are formatted.                       |
-|`property`   |`ArrayFormatter`                     |`BaseFormatter`      |The formatter used to format the properties/values of this array.                                                     |
-|`formatters` |`ObjectSwitchFormatter`              |`ObjectSwitchData[]` |A list of `ObjectFormatter`'s to choose from, depending on a key-value match.                                         |
+|Option               |Availability                         |Type                 |Functionality                                                                                                         |
+|---------------------|-------------------------------------|---------------------|----------------------------------------------------------------------------------------------------------------------|
+|`name`               |All Formatters                       |`string\|null`       |When not `null`, it renders the property name or key. [Click here for an example!](#example-2-name-vs-without-name)   |
+|`multiline`          |`ObjectFormatter` & `ArrayFormatter` |`boolean`            |When `true`, it renders the object or array `multiline`. [Click here for an example!](#example-1-multiline-vs-inline) |
+|`space`              |`ObjectFormatter` & `ArrayFormatter` |`string\|undefined`  |Used as indentation when `multiline` is enabled. 4 spaces by default.                                                 |
+|`multilineWhenEmpty` |`ObjectFormatter` & `ArrayFormatter` |`boolean\|undefined` |When enabled, `multiline` will still be used even if the object/array is empty.                                       |
+|`text`               |`TextFormatter`                      |`string\|undefined`  |When used, insert custom text on this row. Can be used for comments. When not defined, it will just be an empty row.  |
+|`children`           |`ObjectFormatter`                    |`BaseFormatter[]`    |A list of formatters which will define how all children/properties of the object are formatted.                       |
+|`property`           |`ArrayFormatter`                     |`BaseFormatter`      |The formatter used to format the properties/values of this array.                                                     |
+|`formatters`         |`ObjectSwitchFormatter`              |`ObjectSwitchData[]` |A list of `ObjectFormatter`'s to choose from, depending on a key-value match.                                         |
 
 ## 📸 Example Usage
 ### Example 1: Multiline VS Inline
@@ -312,8 +313,8 @@ Please help us grow by giving a star! It would help us a lot!
 </a>
 
 ## 📎 Links
-current version: _v1.0.1_
-</br>changelog: [click here](https://www.github.com/DJj123dj/discord-alt-detector/releases)
+current version: _v1.1.0_
+</br>changelog: [click here](https://www.github.com/DJj123dj/formatted-json-stringify/releases)
 </br>support: [click here](https://discord.dj-dj.be/)
 
 © 2024 - DJdj Development | [website](https://www.dj-dj.be) | [discord](https://discord.dj-dj.be) | [terms of service](https://www.dj-dj.be/terms)

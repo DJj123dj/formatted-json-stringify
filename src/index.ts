@@ -100,13 +100,16 @@ export class ObjectFormatter extends custom.BaseFormatter {
     multiline: boolean
     /**A collection of all the child-formatters in this object. */
     children: custom.BaseFormatter[]
+    /**When enabled, the object will still be rendered multiline when it's empty! */
+    multilineWhenEmpty: boolean
     /**The space or indentation for this object. 4 spaces by default. */
     space: string 
 
-    constructor(name:string|null, multiline:boolean, children:custom.BaseFormatter[], space?:string){
+    constructor(name:string|null, multiline:boolean, children:custom.BaseFormatter[], multilineWhenEmpty?:boolean, space?:string){
         super(name)
         this.multiline = multiline
         this.children = children
+        this.multilineWhenEmpty = multilineWhenEmpty ?? false
         this.space = space ?? "    "
     }
 
@@ -121,7 +124,8 @@ export class ObjectFormatter extends custom.BaseFormatter {
             }
         })
         const key = this.showKey ? `"${this.name}":` : "" 
-        const value = this.multiline ? `{\n${this.space}${children.join(`\n${this.space}`)}\n}` : `{${children.join("")}}`
+        const renderFirstMultiline = (children.length > 0 || this.multilineWhenEmpty)
+        const value = this.multiline ? `{`+(renderFirstMultiline ? `\n${this.space}` : "")+`${children.join(`\n${this.space}`)}\n}` : `{${children.join("")}}`
         return key+value
     }
     /**Private function for indenting all lines except the first row. */
@@ -141,13 +145,16 @@ export class ArrayFormatter extends custom.BaseFormatter {
     multiline: boolean
     /**The formatter that will be executed on all variables in the array. */
     property: custom.BaseFormatter
+    /**When enabled, the object will still be rendered multiline when it's empty! */
+    multilineWhenEmpty: boolean
     /**The space or indentation for this array. 4 spaces by default. */
     space: string 
 
-    constructor(name:string|null, multiline:boolean, property:custom.BaseFormatter, space?:string){
+    constructor(name:string|null, multiline:boolean, property:custom.BaseFormatter, multilineWhenEmpty?:boolean, space?:string){
         super(name)
         this.multiline = multiline
         this.property = property
+        this.multilineWhenEmpty = multilineWhenEmpty ?? false
         this.space = space ?? "    "
     }
 
@@ -159,7 +166,8 @@ export class ArrayFormatter extends custom.BaseFormatter {
         })
 
         const key = this.showKey ? `"${this.name}":` : "" 
-        const value = this.multiline ? `[\n${this.space}${children.join(`\n${this.space}`)}\n]` : `[${children.join("")}]`
+        const renderFirstMultiline = (children.length > 0 || this.multilineWhenEmpty)
+        const value = this.multiline ? `[`+(renderFirstMultiline ? `\n${this.space}` : "")+`${children.join(`\n${this.space}`)}\n]` : `[${children.join("")}]`
         return key+value
     }
     /**Private function for indenting all lines except the first row. */
