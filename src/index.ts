@@ -1,5 +1,5 @@
-
-
+/**A type which matches all available formatters in this package. */
+export type AnyFormatter = custom.BaseFormatter|DefaultFormatter|PropertyFormatter|TextFormatter|ObjectFormatter|ArrayFormatter|ObjectSwitchFormatter
 
 export namespace custom {
     /**All valid variable types in a JSON file. */
@@ -124,8 +124,8 @@ export class ObjectFormatter extends custom.BaseFormatter {
             }
         })
         const key = this.showKey ? `"${this.name}":` : "" 
-        const renderFirstMultiline = (children.length > 0 || this.multilineWhenEmpty)
-        const value = this.multiline ? `{`+(renderFirstMultiline ? `\n${this.space}` : "")+`${children.join(`\n${this.space}`)}\n}` : `{${children.join("")}}`
+        const renderMultiline = this.multiline && (children.length > 0 || this.multilineWhenEmpty)
+        const value = renderMultiline ? `{\n${this.space}${children.join(`\n${this.space}`)}\n}` : `{${children.join("")}}`
         return key+value
     }
     /**Private function for indenting all lines except the first row. */
@@ -166,8 +166,8 @@ export class ArrayFormatter extends custom.BaseFormatter {
         })
 
         const key = this.showKey ? `"${this.name}":` : "" 
-        const renderFirstMultiline = (children.length > 0 || this.multilineWhenEmpty)
-        const value = this.multiline ? `[`+(renderFirstMultiline ? `\n${this.space}` : "")+`${children.join(`\n${this.space}`)}\n]` : `[${children.join("")}]`
+        const renderMultiline = this.multiline && (children.length > 0 || this.multilineWhenEmpty)
+        const value = renderMultiline ? `[\n${this.space}${children.join(`\n${this.space}`)}\n]` : `[${children.join("")}]`
         return key+value
     }
     /**Private function for indenting all lines except the first row. */
