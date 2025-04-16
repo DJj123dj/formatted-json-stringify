@@ -4,7 +4,7 @@ const fs = require("fs")
 
 //our sample
 const sample = {
-    property1:"this is the first property",
+    property1:"this is the first\n\tproperty",
     property2:"this is the second property",
     property3:123,
     subObject:{

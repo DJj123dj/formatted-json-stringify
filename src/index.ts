@@ -70,7 +70,7 @@ export class PropertyFormatter extends custom.BaseFormatter {
     stringify(data:number|string|boolean|null){
         if (typeof data == "undefined") throw new Error(`FJS.PropertyFormatter: Property '${this.name}' is 'undefined' which is not allowed in JSON files!`)
         const key = this.showKey ? `"${this.name}":` : ""
-        const value = (typeof data == "string") ? `"${data}"` : String(data)
+        const value = JSON.stringify(data)
         return key+value
     }
 }

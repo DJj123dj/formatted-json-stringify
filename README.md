@@ -4,7 +4,7 @@
    <img src="https://apis.dj-dj.be/cdn/formatted-json-stringify/logo.png" alt="Formatted Json Stringify" width="600px">
 </picture>
 
-[![discord](https://img.shields.io/badge/discord-join%20our%20server-5865F2.svg?style=flat-square&logo=discord)](https://discord.com/invite/26vT9wt3n3)  [![version](https://img.shields.io/badge/version-1.2.0-brightgreen.svg?style=flat-square)](https://github.com/DJj123dj/formatted-json-stringify/releases/tag/v1.2.0)  [![license](https://img.shields.io/badge/license-MIT-important.svg?style=flat-square)](https://github.com/DJj123dj/formatted-json-stringify/blob/main/LICENSE) [![stars](https://img.shields.io/github/stars/DJj123dj/formatted-json-stringify?color=yellow&label=stars&logo=github&style=flat-square)](https://www.github.com/DJj123dj/formatted-json-stringify)
+[![discord](https://img.shields.io/badge/discord-join%20our%20server-5865F2.svg?style=flat-square&logo=discord)](https://discord.com/invite/26vT9wt3n3)  [![version](https://img.shields.io/badge/version-1.2.1-brightgreen.svg?style=flat-square)](https://github.com/DJj123dj/formatted-json-stringify/releases/tag/v1.2.1)  [![license](https://img.shields.io/badge/license-MIT-important.svg?style=flat-square)](https://github.com/DJj123dj/formatted-json-stringify/blob/main/LICENSE) [![stars](https://img.shields.io/github/stars/DJj123dj/formatted-json-stringify?color=yellow&label=stars&logo=github&style=flat-square)](https://www.github.com/DJj123dj/formatted-json-stringify)
 
 ### Formatted Json Stringify
 Formatted Json Stringify is a small [npm package](https://www.npmjs.com/package/formatted-json-stringify) which allows you use an advanced & customisable version of the `JSON.stringify()`! If you're having trouble configuring the library, feel free to join our support server and we will help you further! 
@@ -313,7 +313,7 @@ Please help us grow by giving a star! It would help us a lot!
 </a>
 
 ## 📎 Links
-current version: _v1.2.0_
+current version: _v1.2.1_
 </br>changelog: [click here](https://www.github.com/DJj123dj/formatted-json-stringify/releases)
 </br>support: [click here](https://discord.dj-dj.be/)
 
