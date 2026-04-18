@@ -10,18 +10,29 @@ export namespace custom {
      */
     export class BaseFormatter {
         /**The name of this variable. Used as key in objects. */
-        name: string
+        readonly name: string
+        /**The name of this variable for the error stack. */
+        readonly errName: string
         /**Set this to `false` when this is a global variable or you don't want the key/name to be rendered. */
         showKey: boolean
 
         constructor(name:string|null){
             this.name = name ?? ""
+            this.errName = name ?? "<unnamed>"
             this.showKey = !(name == null)
         }
 
         /**Parse a variable trough this formatter! Returns a JSON string like `JSON.stringify()` */
-        stringify(data:ValidJsonType): string {
-            throw new Error("FJS.BaseFormatter: Tried to use uninplemented stringify() function!")
+        stringify(data:ValidJsonType,errFilename?:string,errStack?:string): string {
+            throw new Error("FJS.BaseFormatter:stringify() Tried to use uninplemented stringify() function!")
+        }
+        /**Generate an error stack for tracking the origin of the error. */
+        protected generateErrStack(errFilename?:string,errStack?:string,errData?:ValidJsonType){
+            try{
+                return "FJS:STACK:"+(errFilename ?? "<unknown>")+"::>"+(errStack ?? "<no-stack>")+"<:: DATA: "+((typeof errData == "undefined") ? "undefined" : JSON.stringify(errData))
+            }catch{
+                return "FJS:STACK:STACKERROR:"
+            }
         }
     }
 
@@ -55,8 +66,9 @@ export class DefaultFormatter extends custom.BaseFormatter {
         this.space = space ?? "    "
     }
 
-    stringify(data:custom.ValidJsonType){
-        if (typeof data == "undefined") throw new Error(`FJS.PropertyFormatter: Property '${this.name}' is 'undefined' which is not allowed in JSON files!`)
+    stringify(data:custom.ValidJsonType,errFilename?:string,errStack?:string){
+        if (!errStack) errStack = "<root>"
+        if (typeof data == "undefined") throw new Error(`FJS.PropertyFormatter:stringify() Property '${this.name}' is 'undefined' which is not allowed in JSON files! `+this.generateErrStack(errFilename,errStack+"."+this.errName,data))
         const key = this.showKey ? `"${this.name}":` : ""
         const value = JSON.stringify(data,null,(this.multiline ? this.space : undefined))
         return key+value
@@ -67,8 +79,9 @@ export class DefaultFormatter extends custom.BaseFormatter {
  * The formatter responsible for formatting `boolean`, `string`, `number` & `null` variables!
  */
 export class PropertyFormatter extends custom.BaseFormatter {
-    stringify(data:number|string|boolean|null){
-        if (typeof data == "undefined") throw new Error(`FJS.PropertyFormatter: Property '${this.name}' is 'undefined' which is not allowed in JSON files!`)
+    stringify(data:number|string|boolean|null,errFilename?:string,errStack?:string){
+        if (!errStack) errStack = "<root>"
+        if (typeof data == "undefined") throw new Error(`FJS.PropertyFormatter:stringify() Property '${this.name}' is 'undefined' which is not allowed in JSON files! `+this.generateErrStack(errFilename,errStack+"."+this.errName,data))
         const key = this.showKey ? `"${this.name}":` : ""
         const value = JSON.stringify(data)
         return key+value
@@ -87,7 +100,8 @@ export class TextFormatter extends custom.BaseFormatter {
         this.text = text ?? ""
     }
 
-    stringify(): string {
+    stringify(data:null,errFilename?:string,errStack?:string): string {
+        if (!errStack) errStack = "<root>"
         return this.text
     }
 }
@@ -113,14 +127,16 @@ export class ObjectFormatter extends custom.BaseFormatter {
         this.space = space ?? "    "
     }
 
-    stringify(data:object): string {
+    stringify(data:Record<any,custom.ValidJsonType>,errFilename?:string,errStack?:string): string {
+        if (!errStack) errStack = "<root>"
+        if (typeof data !== "object") throw new Error("FJS.ObjectFormatter:stringify() Provided 'data' parameter is not an object! "+this.generateErrStack(errFilename,errStack+"."+this.errName,data))
         const children = this.children.map((child,index) => {
             
             const comma = (this.children.length == index+1) ? "" : ","
-            if (child instanceof TextFormatter) return this.#indentWithoutFirst(child.stringify())
+            if (child instanceof TextFormatter) return this.#indentWithoutFirst(child.stringify(null,errFilename,errStack+"."+this.errName))
             else{
-                if (typeof data[child.name] == "undefined") throw new Error(`FJS.ObjectFormatter: Object property '${child.name}' is 'undefined' which is not allowed in JSON files!`)
-                return this.#indentWithoutFirst(child.stringify(data[child.name])+comma)
+                if (typeof data[child.name] == "undefined") throw new Error(`FJS.ObjectFormatter:stringify() Object property '${child.name}' is 'undefined' which is not allowed in JSON files! `+this.generateErrStack(errFilename,errStack+"."+this.errName+"."+child.errName,data))
+                return this.#indentWithoutFirst(child.stringify(data[child.name],errFilename,errStack+"."+this.errName)+comma)
             }
         })
         const key = this.showKey ? `"${this.name}":` : "" 
@@ -158,11 +174,13 @@ export class ArrayFormatter extends custom.BaseFormatter {
         this.space = space ?? "    "
     }
 
-    stringify(data:custom.ValidJsonType[]): string {
+    stringify(data:custom.ValidJsonType[],errFilename?:string,errStack?:string): string {
+        if (!errStack) errStack = "<root>"
+        if (!Array.isArray(data)) throw new Error("FJS.ArrayFormatter:stringify() Provided 'data' parameter is not an array! "+this.generateErrStack(errFilename,errStack+"."+this.name,data))
         const children = data.map((child,index) => {
-            if (typeof child == "undefined") throw new Error(`FJS.ArrayFormatter: Value #${index} of array is 'undefined' which is not allowed in JSON files!`)
+            if (typeof child == "undefined") throw new Error(`FJS.ArrayFormatter:stringify() Value #${index} of array is 'undefined' which is not allowed in JSON files! `+this.generateErrStack(errFilename,errStack+"."+this.errName+"."+index,child))
             const comma = (data.length == index+1) ? "" : ","
-            return this.#indentWithoutFirst(this.property.stringify(child)+comma)
+            return this.#indentWithoutFirst(this.property.stringify(child,errFilename,errStack+"."+this.errName)+comma)
         })
 
         const key = this.showKey ? `"${this.name}":` : "" 
@@ -193,11 +211,13 @@ export class ObjectSwitchFormatter extends custom.BaseFormatter {
         this.formatters = formatters
     }
 
-    stringify(data:object): string {
+    stringify(data:Record<any,custom.ValidJsonType>,errFilename?:string,errStack?:string): string {
+        if (!errStack) errStack = "<root>"
+        if (typeof data !== "object") throw new Error("FJS.ObjectSwitchFormatter:stringify() Provided 'data' parameter is not an object! "+this.generateErrStack(errFilename,errStack+"."+this.errName,data))
         const result = this.formatters.find((formatter) => data[formatter.key] === formatter.value)
-        if (!result) throw new Error("FJS.ObjectSwitchFormatter: No formatter matches the given object!")
+        if (!result) throw new Error("FJS.ObjectSwitchFormatter:stringify() No formatter matches the given object! "+this.generateErrStack(errFilename,errStack+"."+this.errName,data))
         const formatter = result.formatter
         
-        return formatter.stringify(data)
+        return formatter.stringify(data,errFilename,errStack+"."+this.errName)
     }
 }
