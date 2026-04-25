@@ -27,4 +27,4 @@ const formatter = new fjs.ArrayFormatter(null,true,
 )
 
 //write the output to a json file
-fs.writeFileSync("./test/output.json",formatter.stringify(sample))
+fs.writeFileSync("./test/output.jsonc",formatter.stringify(sample))

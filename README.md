@@ -4,10 +4,10 @@
    <img src="https://apis.dj-dj.be/cdn/formatted-json-stringify/logo.png" alt="Formatted Json Stringify" width="600px">
 </picture>
 
-[![discord](https://img.shields.io/badge/discord-join%20our%20server-5865F2.svg?style=flat-square&logo=discord)](https://discord.com/invite/26vT9wt3n3)  [![version](https://img.shields.io/badge/version-1.3.0-brightgreen.svg?style=flat-square)](https://github.com/DJj123dj/formatted-json-stringify/releases/tag/v1.3.0)  [![license](https://img.shields.io/badge/license-MIT-important.svg?style=flat-square)](https://github.com/DJj123dj/formatted-json-stringify/blob/main/LICENSE) [![stars](https://img.shields.io/github/stars/DJj123dj/formatted-json-stringify?color=yellow&label=stars&logo=github&style=flat-square)](https://www.github.com/DJj123dj/formatted-json-stringify)
+[![discord](https://img.shields.io/badge/discord-join%20our%20server-5865F2.svg?style=flat-square&logo=discord)](https://discord.com/invite/26vT9wt3n3)  [![version](https://img.shields.io/badge/version-1.3.1-brightgreen.svg?style=flat-square)](https://github.com/DJj123dj/formatted-json-stringify/releases/tag/v1.3.1)  [![license](https://img.shields.io/badge/license-MIT-important.svg?style=flat-square)](https://github.com/DJj123dj/formatted-json-stringify/blob/main/LICENSE) [![stars](https://img.shields.io/github/stars/DJj123dj/formatted-json-stringify?color=yellow&label=stars&logo=github&style=flat-square)](https://www.github.com/DJj123dj/formatted-json-stringify)
 
 ### Formatted Json Stringify
-Formatted Json Stringify is a small [npm package](https://www.npmjs.com/package/formatted-json-stringify) which allows you use an advanced & customisable version of the `JSON.stringify()`! If you're having trouble configuring the library, feel free to join our support server and we will help you further! 
+Formatted Json Stringify is a small [npm package](https://www.npmjs.com/package/formatted-json-stringify) which upgrades `JSON.stringify()` with many new formatting tools! Add comments to JSON files, output multi-line & single-line JSON at the same time and so much more! If you're having trouble configuring the library, feel free to join our support server and we will help you further! 
 
 ### [Install it using npm!](https://www.npmjs.com/package/formatted-json-stringify)
 ```
@@ -15,19 +15,19 @@ npm i formatted-json-stringify
 ```
 
 ## 📌 Features
-- 📦 dependency free
-- ⚖️ lightweight
-- ✅ made with typescript
-- ⚙️ advanced customisability
-- 📄 support for custom formatters
-- ⭐️ format json like you never did before!
+- ✏️ Supports JSONC comments
+- ⚖️ Lightweight
+- ✅ Typescript compatible
+- ⚙️ Advanced customisability
+- 📄 Create custom formatters
+- ⭐️ Compact & multiline JSON work together
 
 ## 🛠️ Usage
 ```js
-const fjs = require("formatted-json-stringify")
-const fs = require("fs")
+const fjs = require("formatted-json-stringify") //import fjs from "formatted-json-stringify"
+const fs = require("fs")                        //import fs from "fs"
 
-//the sample we're gonna use
+//Our JSON data sample
 const sample = {
     property1:"this is the first property",
     property2:"this is the second property",
@@ -35,7 +35,7 @@ const sample = {
     subObject:{
         sub_property_1:true,
         sub_property_2:false,
-        sub_array:["abcd","efg","hijk","lmnop","qrst","uvw","xyz","and thats the alphabet!"]
+        sub_array:["abcd","efg","hijk","lmnop","qrst","uvw","xyz"]
     }
 }
 
@@ -49,6 +49,7 @@ const formatter = new fjs.ObjectFormatter(null,true,[
         new fjs.PropertyFormatter("sub_property_1"),
         new fjs.PropertyFormatter("sub_property_2"),
         new fjs.TextFormatter(), //let's add another space inbetween :)
+        new fjs.SingleCommentFormatter("Hi there! I'm a comment!"),
         new fjs.ArrayFormatter("sub_array",false,new fjs.PropertyFormatter(null)),
     ]),
 ])
@@ -58,7 +59,7 @@ fs.writeFileSync("./test/output.json",formatter.stringify(sample))
 ```
 
 ### Expected Output:
-```json
+```jsonc
 {
     "property1":"this is the first property",
     "property2":"this is the second property",
@@ -68,6 +69,7 @@ fs.writeFileSync("./test/output.json",formatter.stringify(sample))
         "sub_property_1":true,
         "sub_property_2":false,
         
+        //Hi there! I'm a comment!
         "sub_array":["abcd","efg","hijk","lmnop","qrst","uvw","xyz","and thats the alphabet!"]
     }
 }
@@ -86,10 +88,12 @@ When using Formatted Json Stringify you have access to the following classes.
 |`ObjectFormatter`       |`object`                               |Format an `object` and customise how it's children/properties are formatted! **This supports multiple formatters for all children!**     |
 |`ArrayFormatter`        |`array`                                |Format an `array` and customise how the values are formatted. **This supports 1 formatter for all children!**!                           |
 |`TextFormatter`         |`/`                                    |Add an empty row or note between properties in an `object`!                                                                              |
+|`SingleCommentFormatter`|`/`                                    |Add a single-line `//...` comment between 2 properties. Can also be used inside another formatter for inline comments.                   |
+|`MultiCommentFormatter` |`/`                                    |Add a single-line `/*...*/` comment between 2 properties. Can also be used inside another formatter for inline comments.                 |
 |`ObjectSwitchFormatter` |`object`                               |Use this utility class to switch `ObjectFormatter`'s based on a `key` and `value` match in the object.                                   |
-|`DefaultFormatter`      |`any`                                  |Format any variable you don't know the contents of! This formatter uses `JSON.stringify()` under the hood!                               |
+|`DefaultFormatter`      |`any`                                  |Format any variable with unknown contents! This will just use the default `JSON.stringify()` method!                                     |
 
-> There is also the `BaseFormatter` for when you want to create your own formatter (by extending)!
+> There is also the abstract `BaseFormatter` class for creating a custom formatter!
 
 ### Configurable Options
 Here, you can find a list of settings found on most formatters and what they will do.
@@ -103,6 +107,7 @@ Here, you can find a list of settings found on most formatters and what they wil
 |`children`           |`ObjectFormatter`                    |`BaseFormatter[]`    |A list of formatters which will define how all children/properties of the object are formatted.                       |
 |`property`           |`ArrayFormatter`                     |`BaseFormatter`      |The formatter used to format the properties/values of this array.                                                     |
 |`formatters`         |`ObjectSwitchFormatter`              |`ObjectSwitchData[]` |A list of `ObjectFormatter`'s to choose from, depending on a key-value match.                                         |
+|`comment`            |All Formatters                       |`CommentFormatter`   |Specify an optional inline comment. It will be rendered after the JSON data.                                          |
 
 ## 📸 Example Usage
 ### Example 1: Multiline VS Inline
@@ -293,13 +298,9 @@ const formatter = new fjs.ObjectFormatter(null,true,[
 We don't have any sponsors yet! Would you like to do it?
 
 ## 🛠️ Contributors
-### Official Team
-|Role               |User (discord name)|
+|Role               |User (Discord/Github)|
 |-------------------|-------------------|
-|🖥️ Lead Developer   |djj123dj           |
-
-### Community
-We don't have any community contributors yet!
+|🖥️ Main Developer   |djj123dj           |
 
 ## ⭐️ Star History
 Please help us grow by giving a star! It would help us a lot!
@@ -313,8 +314,8 @@ Please help us grow by giving a star! It would help us a lot!
 </a>
 
 ## 📎 Links
-current version: _v1.3.0_
+current version: _v1.3.1_
 </br>changelog: [click here](https://www.github.com/DJj123dj/formatted-json-stringify/releases)
 </br>support: [click here](https://discord.dj-dj.be/)
 
-© 2024 - DJdj Development | [website](https://www.dj-dj.be) | [discord](https://discord.dj-dj.be) | [terms of service](https://www.dj-dj.be/terms)
+© 2026 - DJdj Development | [Website](https://www.dj-dj.be) | [Support Server](https://discord.dj-dj.be) | [Terms Of Service](https://www.dj-dj.be/terms)

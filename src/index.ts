@@ -1,5 +1,5 @@
 /**A type which matches all available formatters in this package. */
-export type AnyFormatter = custom.BaseFormatter|DefaultFormatter|PropertyFormatter|TextFormatter|ObjectFormatter|ArrayFormatter|ObjectSwitchFormatter
+export type AnyFormatter = custom.BaseFormatter|DefaultFormatter|PropertyFormatter|TextFormatter|ObjectFormatter|ArrayFormatter|ObjectSwitchFormatter|SingleCommentFormatter|MultiCommentFormatter
 
 export namespace custom {
     /**All valid variable types in a JSON file. */
@@ -8,7 +8,7 @@ export namespace custom {
     /**## BaseFormatter `class`
      * The base of all formatters. This class can't be used directly, but needs to be extended from when creating custom formatters!
      */
-    export class BaseFormatter {
+    export abstract class BaseFormatter {
         /**The name of this variable. Used as key in objects. */
         readonly name: string
         /**The name of this variable for the error stack. */
@@ -23,9 +23,7 @@ export namespace custom {
         }
 
         /**Parse a variable trough this formatter! Returns a JSON string like `JSON.stringify()` */
-        stringify(data:ValidJsonType,errFilename?:string,errStack?:string): string {
-            throw new Error("FJS.BaseFormatter:stringify() Tried to use uninplemented stringify() function!")
-        }
+        abstract stringify(data:ValidJsonType,errFilename?:string,errStack?:string): string
         /**Generate an error stack for tracking the origin of the error. */
         protected generateErrStack(errFilename?:string,errStack?:string,errData?:ValidJsonType){
             try{
@@ -33,6 +31,19 @@ export namespace custom {
             }catch{
                 return "FJS:STACK:STACKERROR:"
             }
+        }
+    }
+
+    /**## BaseFormatterWithComment `class`
+     * The base of all formatters with support for inline JSONC comments. This class can't be used directly, but needs to be extended from when creating custom formatters!
+     */
+    export abstract class BaseFormatterWithComment extends BaseFormatter {
+        /**An optional comment shown after the property in JSONC files. Parsed by an ObjectFormatter or ArrayFormatter */
+        comment: SingleCommentFormatter|MultiCommentFormatter|null
+
+        constructor(name:string|null,comment?:SingleCommentFormatter|MultiCommentFormatter){
+            super(name)
+            this.comment = comment ?? null
         }
     }
 
@@ -54,14 +65,14 @@ export namespace custom {
  * 
  * It just uses the default `JSON.stringify` under the hood!
  */
-export class DefaultFormatter extends custom.BaseFormatter {
+export class DefaultFormatter extends custom.BaseFormatterWithComment {
     /**When enabled, objects & arrays will be rendered multiline instead of inline! */
     multiline: boolean
     /**The space or indentation for this object/array. 4 spaces by default. */
     space: string 
 
-    constructor(name:string|null, multiline:boolean, space?:string){
-        super(name)
+    constructor(name:string|null, multiline:boolean, space?:string, comment?:SingleCommentFormatter|MultiCommentFormatter){
+        super(name,comment)
         this.multiline = multiline
         this.space = space ?? "    "
     }
@@ -78,7 +89,7 @@ export class DefaultFormatter extends custom.BaseFormatter {
 /**## PropertyFormatter `class`
  * The formatter responsible for formatting `boolean`, `string`, `number` & `null` variables!
  */
-export class PropertyFormatter extends custom.BaseFormatter {
+export class PropertyFormatter extends custom.BaseFormatterWithComment {
     stringify(data:number|string|boolean|null,errFilename?:string,errStack?:string){
         if (!errStack) errStack = "<root>"
         if (typeof data == "undefined") throw new Error(`FJS.PropertyFormatter:stringify() Property '${this.name}' is 'undefined' which is not allowed in JSON files! `+this.generateErrStack(errFilename,errStack+"."+this.errName,data))
@@ -106,10 +117,55 @@ export class TextFormatter extends custom.BaseFormatter {
     }
 }
 
+/**## SingleCommentFormatter `class`
+ * A formatter to add a single-line comment (`// this is a comment`) to JSONC files
+ * 
+ * Warning: This comment is only supported within multi-line objects/arrays!
+ */
+export class SingleCommentFormatter extends custom.BaseFormatter {
+    /**The comment to write on this row. */
+    comment: string
+
+    constructor(comment:string){
+        super(null)
+        this.comment = comment ?? ""
+    }
+
+    stringify(data:null,errFilename?:string,errStack?:string): string {
+        if (!errStack) errStack = "<root>"
+        return "//"+this.comment
+    }
+}
+
+
+/**## MultiCommentFormatter `class`
+ * A formatter to add a multi-line comment (`/* this is a multi-line comment *\/`) to JSONC files
+ */
+export class MultiCommentFormatter extends custom.BaseFormatter {
+    /**The comment to write on this row. */
+    comment: string
+
+    constructor(comment:string){
+        super(null)
+        this.comment = comment ?? ""
+    }
+
+    stringify(data:null,errFilename?:string,errStack?:string): string {
+        if (!errStack) errStack = "<root>"
+        const rows = this.comment.split("\n")
+        if (rows.length < 2) return "/* "+(rows.shift() ?? "")+" */"
+        else{
+            
+            return "/*\n * "+rows.join("\n * ")+"\n */"
+        }
+        
+    }
+}
+
 /**## ObjectFormatter `class`
  * The formatter responsible for formatting `object` variables!
  */
-export class ObjectFormatter extends custom.BaseFormatter {
+export class ObjectFormatter extends custom.BaseFormatterWithComment {
     /**When enabled, the object will be rendered multiline instead of inline! */
     multiline: boolean
     /**A collection of all the child-formatters in this object. */
@@ -119,8 +175,8 @@ export class ObjectFormatter extends custom.BaseFormatter {
     /**The space or indentation for this object. 4 spaces by default. */
     space: string 
 
-    constructor(name:string|null, multiline:boolean, children:custom.BaseFormatter[], multilineWhenEmpty?:boolean, space?:string){
-        super(name)
+    constructor(name:string|null, multiline:boolean, children:custom.BaseFormatter[], multilineWhenEmpty?:boolean, space?:string, comment?:SingleCommentFormatter|MultiCommentFormatter){
+        super(name,comment)
         this.multiline = multiline
         this.children = children
         this.multilineWhenEmpty = multilineWhenEmpty ?? false
@@ -133,11 +189,18 @@ export class ObjectFormatter extends custom.BaseFormatter {
         const children = this.children.map((child,index) => {
             
             const comma = (this.children.length == index+1) ? "" : ","
-            if (child instanceof TextFormatter) return this.#indentWithoutFirst(child.stringify(null,errFilename,errStack+"."+this.errName))
-            else{
-                if (typeof data[child.name] == "undefined") throw new Error(`FJS.ObjectFormatter:stringify() Object property '${child.name}' is 'undefined' which is not allowed in JSON files! `+this.generateErrStack(errFilename,errStack+"."+this.errName+"."+child.errName,data))
-                return this.#indentWithoutFirst(child.stringify(data[child.name],errFilename,errStack+"."+this.errName)+comma)
+            if (child instanceof TextFormatter || child instanceof SingleCommentFormatter || child instanceof MultiCommentFormatter) return this.#indentWithoutFirst(child.stringify(null,errFilename,errStack+"."+this.errName))
+            
+            if (typeof data[child.name] == "undefined") throw new Error(`FJS.ObjectFormatter:stringify() Object property '${child.name}' is 'undefined' which is not allowed in JSON files! `+this.generateErrStack(errFilename,errStack+"."+this.errName+"."+child.errName,data))
+            
+            if (child instanceof custom.BaseFormatterWithComment){
+                //formatter supports inline comments
+                const comment = (child.comment) ? " "+child.comment.stringify(null,errFilename,errStack+"."+this.errName+"."+child.errName) : ""
+                return this.#indentWithoutFirst(child.stringify(data[child.name],errFilename,errStack+"."+this.errName)+comma+comment)
             }
+
+            //default child rendering
+            return this.#indentWithoutFirst(child.stringify(data[child.name],errFilename,errStack+"."+this.errName)+comma)
         })
         const key = this.showKey ? `"${this.name}":` : "" 
         const renderMultiline = this.multiline && (children.length > 0 || this.multilineWhenEmpty)
@@ -156,7 +219,7 @@ export class ObjectFormatter extends custom.BaseFormatter {
 /**## ArrayFormatter `class`
  * The formatter responsible for formatting `array` variables!
  */
-export class ArrayFormatter extends custom.BaseFormatter {
+export class ArrayFormatter extends custom.BaseFormatterWithComment {
     /**When enabled, the array will be rendered multiline instead of inline! */
     multiline: boolean
     /**The formatter that will be executed on all variables in the array. */
@@ -166,8 +229,8 @@ export class ArrayFormatter extends custom.BaseFormatter {
     /**The space or indentation for this array. 4 spaces by default. */
     space: string 
 
-    constructor(name:string|null, multiline:boolean, property:custom.BaseFormatter, multilineWhenEmpty?:boolean, space?:string){
-        super(name)
+    constructor(name:string|null, multiline:boolean, property:custom.BaseFormatter, multilineWhenEmpty?:boolean, space?:string, comment?:SingleCommentFormatter|MultiCommentFormatter){
+        super(name,comment)
         this.multiline = multiline
         this.property = property
         this.multilineWhenEmpty = multilineWhenEmpty ?? false
@@ -178,8 +241,16 @@ export class ArrayFormatter extends custom.BaseFormatter {
         if (!errStack) errStack = "<root>"
         if (!Array.isArray(data)) throw new Error("FJS.ArrayFormatter:stringify() Provided 'data' parameter is not an array! "+this.generateErrStack(errFilename,errStack+"."+this.name,data))
         const children = data.map((child,index) => {
-            if (typeof child == "undefined") throw new Error(`FJS.ArrayFormatter:stringify() Value #${index} of array is 'undefined' which is not allowed in JSON files! `+this.generateErrStack(errFilename,errStack+"."+this.errName+"."+index,child))
             const comma = (data.length == index+1) ? "" : ","
+            if (typeof child == "undefined") throw new Error(`FJS.ArrayFormatter:stringify() Value #${index} of array is 'undefined' which is not allowed in JSON files! `+this.generateErrStack(errFilename,errStack+"."+this.errName+"."+index,child))
+            
+            if (this.property instanceof custom.BaseFormatterWithComment){
+                //formatter supports inline comments
+                const comment = (this.property.comment) ? " "+this.property.comment.stringify(null,errFilename,errStack+"."+this.errName+"."+index) : ""
+                return this.#indentWithoutFirst(this.property.stringify(child,errFilename,errStack+"."+this.errName)+comma+comment)
+            }
+            
+            //default child rendering
             return this.#indentWithoutFirst(this.property.stringify(child,errFilename,errStack+"."+this.errName)+comma)
         })
 
@@ -202,12 +273,12 @@ export class ArrayFormatter extends custom.BaseFormatter {
  * 
  * This could be used in combination with an `ArrayFormatter` to allow different objects to exist in the same array!
  */
-export class ObjectSwitchFormatter extends custom.BaseFormatter {
+export class ObjectSwitchFormatter extends custom.BaseFormatterWithComment {
     /**A list of all available formatters to check for an object. */
     formatters: custom.ObjectSwitchData[]
 
-    constructor(name:string|null, formatters:custom.ObjectSwitchData[]){
-        super(name)
+    constructor(name:string|null, formatters:custom.ObjectSwitchData[], comment?:SingleCommentFormatter|MultiCommentFormatter){
+        super(name,comment)
         this.formatters = formatters
     }
 

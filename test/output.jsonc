@@ -1,0 +1,26 @@
+{
+    "property1":"this is the first\n\tproperty hi",
+    "property2":"this is the second property",
+    "property3":123,
+    //hello! I'm a comment
+    "testEmptyArray":[
+        "a",
+        "b",
+        "c"
+    ],
+    "subObject":{
+        "sub_property_1":true,
+        "sub_property_2":false,
+        
+        /*
+         * Hi there!
+         * We're testing multi-line comments!
+         */
+        "sub_array":[
+            {"id":"hey1","value":"ho"}, /* Hello world! */
+            {"id":"hey2","value":"ho"}, /* Hello world! */
+            {"id":"hey3","value":"ho"}, /* Hello world! */
+            {"id":"hey4","value":"ho"} /* Hello world! */
+        ]
+    }
+}
