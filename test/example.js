@@ -7,6 +7,7 @@ const sample = {
     property1:"this is the first\n\tproperty hi",
     property2:"this is the second property",
     property3:123,
+    property4:3,
     subObject:{
         sub_property_1:true,
         sub_property_2:false,
@@ -21,7 +22,7 @@ const sample = {
 }
 
 //create the formatter for our sample
-const formatter = new fjs.ObjectFormatter(null,true,[
+const formatter = new fjs.TopLevelCommentFormatter(new fjs.MultiCommentFormatter("Hey\nhow is it going? it's goood"),new fjs.ObjectFormatter(null,true,[
     new fjs.PropertyFormatter("property1"),
     new fjs.PropertyFormatter("property2"),
     new fjs.PropertyFormatter("property3"),
@@ -37,7 +38,10 @@ const formatter = new fjs.ObjectFormatter(null,true,[
             new fjs.PropertyFormatter("value"),
         ],false,undefined,new fjs.MultiCommentFormatter("Hello world!"))),
     ]),
-])
+    new fjs.SingleCommentFormatter("hello! I'm a comment"), //let's add a space inbetween
+    new fjs.PropertyFormatter("property4"),
+    new fjs.SingleCommentFormatter("hello! I'm a comment"), //let's add a space inbetween
+]))
 
 //write the output to a json file
 fs.writeFileSync("./test/output.jsonc",formatter.stringify(sample,"output.json"))

@@ -1,5 +1,5 @@
 /**A type which matches all available formatters in this package. */
-export type AnyFormatter = custom.BaseFormatter|DefaultFormatter|PropertyFormatter|TextFormatter|ObjectFormatter|ArrayFormatter|ObjectSwitchFormatter|SingleCommentFormatter|MultiCommentFormatter
+export type AnyFormatter = custom.BaseFormatter|DefaultFormatter|PropertyFormatter|TextFormatter|ObjectFormatter|ArrayFormatter|ObjectSwitchFormatter|SingleCommentFormatter|MultiCommentFormatter|TopLevelCommentFormatter
 
 export namespace custom {
     /**All valid variable types in a JSON file. */
@@ -99,6 +99,27 @@ export class PropertyFormatter extends custom.BaseFormatterWithComment {
     }
 }
 
+/**## TopLevelCommentFormatter `class`
+ * A formatter to display a comment at the top level of the outputted JSON.
+ */
+export class TopLevelCommentFormatter extends custom.BaseFormatterWithComment {
+    /**Child formatter to parse the actual content. */
+    child: custom.BaseFormatter
+    declare comment: SingleCommentFormatter | MultiCommentFormatter
+
+    constructor(comment:SingleCommentFormatter|MultiCommentFormatter,child:custom.BaseFormatter){
+        super(null,comment)
+        this.child = child
+    }
+
+    stringify(data:custom.ValidJsonType,errFilename?:string,errStack?:string){
+        if (!errStack) errStack = "<root>"
+        const comment = this.comment.stringify(null,errFilename,errStack)
+        const formattedContent = this.child.stringify(data,errFilename,errStack)
+        return comment+"\n"+formattedContent
+    }
+}
+
 /**## TextFormatter `class`
  * The formatter responsible for adding custom text between properties in an object!
  */
@@ -187,8 +208,9 @@ export class ObjectFormatter extends custom.BaseFormatterWithComment {
         if (!errStack) errStack = "<root>"
         if (typeof data !== "object") throw new Error("FJS.ObjectFormatter:stringify() Provided 'data' parameter is not an object! "+this.generateErrStack(errFilename,errStack+"."+this.errName,data))
         const children = this.children.map((child,index) => {
-            
-            const comma = (this.children.length == index+1) ? "" : ","
+            const nextNonCommentChild = this.children.find((nextChild,nextIndex) => (nextIndex > index) && !(nextChild instanceof SingleCommentFormatter) && !(nextChild instanceof MultiCommentFormatter))
+            const comma = (nextNonCommentChild) ? "," : ""
+
             if (child instanceof TextFormatter || child instanceof SingleCommentFormatter || child instanceof MultiCommentFormatter) return this.#indentWithoutFirst(child.stringify(null,errFilename,errStack+"."+this.errName))
             
             if (typeof data[child.name] == "undefined") throw new Error(`FJS.ObjectFormatter:stringify() Object property '${child.name}' is 'undefined' which is not allowed in JSON files! `+this.generateErrStack(errFilename,errStack+"."+this.errName+"."+child.errName,data))
