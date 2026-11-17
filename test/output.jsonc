@@ -28,6 +28,7 @@
         ]
     },
     //hello! I'm a comment
-    "property4":3
+    "property4":3,
+    "Test\nSpecialKeys":"Testing"
     //hello! I'm a comment
 }

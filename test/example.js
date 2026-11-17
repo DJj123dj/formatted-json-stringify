@@ -8,6 +8,7 @@ const sample = {
     property2:"this is the second property",
     property3:123,
     property4:3,
+    "Test\nSpecialKeys":"Testing",
     subObject:{
         sub_property_1:true,
         sub_property_2:false,
@@ -40,6 +41,7 @@ const formatter = new fjs.TopLevelCommentFormatter(new fjs.MultiCommentFormatter
     ]),
     new fjs.SingleCommentFormatter("hello! I'm a comment"), //let's add a space inbetween
     new fjs.PropertyFormatter("property4"),
+    new fjs.PropertyFormatter("Test\nSpecialKeys"),
     new fjs.SingleCommentFormatter("hello! I'm a comment"), //let's add a space inbetween
 ]))
 

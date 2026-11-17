@@ -80,7 +80,7 @@ export class DefaultFormatter extends custom.BaseFormatterWithComment {
     stringify(data:custom.ValidJsonType,errFilename?:string,errStack?:string){
         if (!errStack) errStack = "<root>"
         if (typeof data == "undefined") throw new Error(`FJS.PropertyFormatter:stringify() Property '${this.name}' is 'undefined' which is not allowed in JSON files! `+this.generateErrStack(errFilename,errStack+"."+this.errName,data))
-        const key = this.showKey ? `"${this.name}":` : ""
+        const key = this.showKey ? `${JSON.stringify(this.name)}:` : ""
         const value = JSON.stringify(data,null,(this.multiline ? this.space : undefined))
         return key+value
     }
@@ -93,7 +93,8 @@ export class PropertyFormatter extends custom.BaseFormatterWithComment {
     stringify(data:number|string|boolean|null,errFilename?:string,errStack?:string){
         if (!errStack) errStack = "<root>"
         if (typeof data == "undefined") throw new Error(`FJS.PropertyFormatter:stringify() Property '${this.name}' is 'undefined' which is not allowed in JSON files! `+this.generateErrStack(errFilename,errStack+"."+this.errName,data))
-        const key = this.showKey ? `"${this.name}":` : ""
+        
+        const key = this.showKey ? `${JSON.stringify(this.name)}:` : ""
         const value = JSON.stringify(data)
         return key+value
     }
@@ -224,7 +225,7 @@ export class ObjectFormatter extends custom.BaseFormatterWithComment {
             //default child rendering
             return this.#indentWithoutFirst(child.stringify(data[child.name],errFilename,errStack+"."+this.errName)+comma)
         })
-        const key = this.showKey ? `"${this.name}":` : "" 
+        const key = this.showKey ? `${JSON.stringify(this.name)}:` : "" 
         const renderMultiline = this.multiline && (children.length > 0 || this.multilineWhenEmpty)
         const value = renderMultiline ? `{\n${this.space}${children.join(`\n${this.space}`)}\n}` : `{${children.join("")}}`
         return key+value
@@ -276,7 +277,7 @@ export class ArrayFormatter extends custom.BaseFormatterWithComment {
             return this.#indentWithoutFirst(this.property.stringify(child,errFilename,errStack+"."+this.errName)+comma)
         })
 
-        const key = this.showKey ? `"${this.name}":` : "" 
+        const key = this.showKey ? `${JSON.stringify(this.name)}:` : "" 
         const renderMultiline = this.multiline && (children.length > 0 || this.multilineWhenEmpty)
         const value = renderMultiline ? `[\n${this.space}${children.join(`\n${this.space}`)}\n]` : `[${children.join("")}]`
         return key+value
